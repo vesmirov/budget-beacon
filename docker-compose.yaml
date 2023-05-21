@@ -1,0 +1,28 @@
+version: '3.9'
+
+volumes:
+    postgres_data:
+
+services:
+    postgres:
+        restart: unless-stopped
+        image: postgres:15.3-alpine
+        env_file: environment/postgres.env
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432/tcp
+
+    hub:
+        build: .
+        restart: always
+        depends_on:
+            - postgres
+        command: python manage.py runserver 0.0.0.0:8000
+        env_file:
+            - ./environment/postgres.env
+            - ./environment/project.env
+        volumes:
+            - .:/code
+        ports:
+            - 8000:8000/tcp

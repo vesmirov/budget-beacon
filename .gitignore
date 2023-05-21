@@ -1,0 +1,6 @@
+# workspace
+.idea/
+
+# environments
+environment/
+*.env
