@@ -1,5 +1,8 @@
 ## Type
-bug / feature / refactoring / other
+- [ ] bug
+- [ ] feature
+- [ ] refactoring
+- [ ] other
 
 ## Description
 N/A
