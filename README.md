@@ -1,2 +1,3 @@
-# utility-hub
-UtilityHub - a versatile set of applications developed on Django, designed for everyday use.
+# budget-beacon
+Budget Beacon - Empowering personal financial management by providing comprehensive tools for income tracking, 
+budget planning, and funds allocation.
