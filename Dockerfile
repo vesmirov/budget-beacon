@@ -1,11 +1,9 @@
-FROM python:3.10.0
+FROM python:3.11.4
 
 WORKDIR /code
 
-COPY poetry.lock pyproject.toml /code/
-RUN pip install poetry==1.2.0 --no-input
-RUN poetry config virtualenvs.create false
-RUN poetry install -n --no-root --without dev
+COPY requirements.txt /code/
+RUN pip install -r requirements.txt
 
 COPY . /code/
 RUN chmod +x ./entrypoint.sh
