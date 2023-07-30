@@ -1,8 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-from finances.models import Currency
 
 
 class User(AbstractUser):
@@ -27,9 +26,13 @@ class User(AbstractUser):
         UNREGISTERED = 'UNR', _('Unregistered User')
         REGISTERED = 'REG', _('Registered User')
 
-    role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices)
+    role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices.choices)
     telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True)
-    password = models.CharField(_('password'), max_length=128, null=True)
+    password = models.CharField(_('password'), max_length=128, blank=True)
+
+    def clean(self):
+        if self.role == self.UserRolesChoices.REGISTERED and not (self.password or self.email):
+            raise ValidationError(_('Registered users must have an email and password.'))
 
 
 class Profile(models.Model):
@@ -53,8 +56,8 @@ class Profile(models.Model):
         ANNUALLY = 'A', _('Annually')
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    balance = models.DecimalField(_('balance'), decimal_places=2)
-    budget = models.DecimalField(_('budget'), decimal_places=2)
-    budget_period = models.CharField(_('budget period'), max_length=1, choices=PeriodChoices)
-    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, related_name='user profiles')
+    balance = models.DecimalField(_('balance'), decimal_places=2, max_digits=15)
+    budget = models.DecimalField(_('budget'), decimal_places=2, max_digits=15)
+    budget_period = models.CharField(_('budget period'), max_length=1, choices=PeriodChoices.choices)
+    currency = models.ForeignKey('finances.Currency', on_delete=models.PROTECT, related_name='user_profiles', null=True)
     date_updated = models.DateTimeField(_('date updated'), auto_now=True)

@@ -35,10 +35,10 @@ class Fund(models.Model):
     """
 
     name = models.CharField(_('name'), max_length=32)
-    description = models.CharField(_('description'), max_length=200, null=True)
-    balance = models.DecimalField(_('balance'), decimal_places=2)
-    goal = models.DecimalField(_('goal'), decimal_places=2, null=True)
-    budget = models.DecimalField(_('balance'), decimal_places=2)
+    description = models.CharField(_('description'), max_length=200, blank=True)
+    balance = models.DecimalField(_('balance'), decimal_places=2, max_digits=15)
+    goal = models.DecimalField(_('goal'), decimal_places=2, max_digits=15, blank=True)
+    budget = models.DecimalField(_('balance'), decimal_places=2, max_digits=15)
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     date_updated = models.DateTimeField(_('date updated'), auto_now=True)
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='funds')
@@ -65,9 +65,9 @@ class Transaction(models.Model):
         EXPENSE = 'EX', _('Expense')
         TRANSFER = 'TR', _('Transfer')
 
-    type = models.CharField(_('transaction type'), max_length=2, choices=TransactionTypeChoices)
-    amount = models.DecimalField(_('transferred amount'), decimal_places=2)
-    comment = models.CharField(_('comment'), max_length=200, null=True)
+    type = models.CharField(_('transaction type'), max_length=2, choices=TransactionTypeChoices.choices)
+    amount = models.DecimalField(_('transferred amount'), decimal_places=2, max_digits=15)
+    comment = models.CharField(_('comment'), max_length=200, blank=True)
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     fund = models.ForeignKey(Fund, on_delete=models.CASCADE, related_name='transactions')
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='transactions')
