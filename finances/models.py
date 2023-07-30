@@ -9,7 +9,7 @@ User = get_user_model()
 
 class Currency(models.Model):
     """
-    Represents a currency that the user can use.
+    Represents a currency that user can use.
 
     Fields:
         name (str): currency name
@@ -18,6 +18,9 @@ class Currency(models.Model):
 
     name = models.CharField(_('name'), max_length=32, unique=True)
     iso_code = models.CharField(_('ISO code'), max_length=3, unique=True)
+
+    class Meta:
+        verbose_name_plural = 'currencies'
 
 
 class Fund(models.Model):
