@@ -65,6 +65,7 @@ class Transaction(models.Model):
         EXPENSE = 'EX', _('Expense')
         TRANSFER = 'TR', _('Transfer')
 
+    type = models.CharField(_('transaction type'), max_length=2, choices=TransactionTypeChoices)
     amount = models.DecimalField(_('transferred amount'), decimal_places=2)
     comment = models.CharField(_('comment'), max_length=200, null=True)
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
