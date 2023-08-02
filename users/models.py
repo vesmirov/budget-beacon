@@ -44,20 +44,13 @@ class Profile(models.Model):
     Fields:
         user (oo): 'User' OneToOne relation
         balance (dec): the amount of non-distributed money
-        budget (dec): the total planned budget by user
-        budget_period (str): choice field which represents a period for the budget
         currency (fk): `Currency` OneToMany relation
+        date_created (dt): date and time profile was created
+        date_updated (dt): date and time profile was updated
     """
-
-    class PeriodChoices(models.TextChoices):
-        DAILY = 'D', _('Daily')
-        WEEKLY = 'W', _('Weekly')
-        MONTHLY = 'M', _('Monthly')
-        ANNUALLY = 'A', _('Annually')
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     balance = models.DecimalField(_('balance'), decimal_places=2, max_digits=15)
-    budget = models.DecimalField(_('budget'), decimal_places=2, max_digits=15)
-    budget_period = models.CharField(_('budget period'), max_length=1, choices=PeriodChoices.choices)
     currency = models.ForeignKey('finances.Currency', on_delete=models.PROTECT, related_name='user_profiles', null=True)
+    date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     date_updated = models.DateTimeField(_('date updated'), auto_now=True)
