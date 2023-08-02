@@ -74,3 +74,53 @@ class Transaction(models.Model):
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     fund = models.ForeignKey(Fund, on_delete=models.CASCADE, related_name='transactions')
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='transactions')
+
+
+class BudgetPeriodChoices(models.TextChoices):
+    DAILY = 'D', _('Daily')
+    WEEKLY = 'W', _('Weekly')
+    MONTHLY = 'M', _('Monthly')
+    ANNUALLY = 'A', _('Annually')
+
+
+class FundBudget(models.Model):
+    """
+    Represents a budget for a fund.
+
+    Fields:
+        period (str): budget period
+        amount (dec): budget amount
+        date_created (dt): date and time budget was created
+        fund (fk): `Fund` OneToMany relation
+    """
+
+    class Meta:
+        unique_together = ('fund', 'period')
+
+    period = models.CharField(_('budget period'), max_length=1, choices=BudgetPeriodChoices.choices)
+    amount = models.DecimalField(_('budget amount'), decimal_places=2, max_digits=15)
+    date_created = models.DateTimeField(_('date created'), auto_now_add=True)
+    fund = models.ForeignKey(Fund, on_delete=models.CASCADE, related_name='budgets')
+    end_date = models.DateField(_('end date'))
+    auto_renew = models.BooleanField(_('renew'), default=False)
+
+
+class UserBudget(models.Model):
+    """
+    Represents a budget for a user.
+
+    Fields:
+        period (str): budget period
+        amount (dec): budget amount
+        date_created (dt): date and time budget was created
+        user_profile (fk): `Profile` OneToMany relation
+    """
+    class Meta:
+        unique_together = ('user_profile', 'period')
+
+    period = models.CharField(_('budget period'), max_length=1, choices=BudgetPeriodChoices.choices)
+    amount = models.DecimalField(_('budget amount'), decimal_places=2, max_digits=15)
+    date_created = models.DateTimeField(_('date created'), auto_now_add=True)
+    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='budgets')
+    end_date = models.DateField(_('end date'))
+    auto_renew = models.BooleanField(_('renew'), default=False)

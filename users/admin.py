@@ -32,7 +32,7 @@ class ExtendedUserAdmin(UserAdmin):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'balance', 'budget', 'budget_period', 'currency', 'date_updated',)
+    list_display = ('id', 'user', 'balance', 'currency', 'date_updated',)
 
 
 admin.site.register(User, ExtendedUserAdmin)
