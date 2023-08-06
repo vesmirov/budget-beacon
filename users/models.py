@@ -27,7 +27,12 @@ class User(AbstractUser):
         REGISTERED = 'REG', _('Registered User')
 
     role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices.choices)
-    telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True)
+    telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True, index=True)
+    email = models.EmailField(
+        _('email address'),
+        unique=True,
+        error_messages={'unique': _('A user with that email address already exists.')},
+    )
     password = models.CharField(_('password'), max_length=128, blank=True)
 
     def clean(self):
@@ -51,6 +56,11 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     balance = models.DecimalField(_('balance'), decimal_places=2, max_digits=15)
-    currency = models.ForeignKey('finances.Currency', on_delete=models.PROTECT, related_name='user_profiles', null=True)
+    currency = models.ForeignKey(
+        'finances.Currency',
+        on_delete=models.PROTECT,
+        related_name='user_profiles',
+        null=True,
+    )
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     date_updated = models.DateTimeField(_('date updated'), auto_now=True)
