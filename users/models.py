@@ -28,7 +28,7 @@ class User(AbstractUser):
         UNREGISTERED = 'UNR', _('Unregistered User')
 
     role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices.choices)
-    telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True, index=True)
+    telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True, db_index=True)
     email = models.EmailField(
         _('email address'),
         unique=True,

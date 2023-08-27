@@ -9,17 +9,16 @@ class UserAdminSerializer(ModelSerializer):
         model = User
         fields = (
             'id',
-            'telegram_id',
             'username',
             'email',
+            'telegram_id',
             'first_name',
             'last_name',
+            'role',
             'is_staff',
             'date_joined',
         )
         read_only_fields = (
-            'email',
-            'telegram_id',
             'date_joined',
         )
 
