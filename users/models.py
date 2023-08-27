@@ -10,11 +10,6 @@ class User(AbstractUser):
     Specifically, it includes a field for the user's Telegram ID, which allows your application to interact with
     the user through the Telegram messaging service.
 
-    The user has several roles:
-    1. ADMIN - administrator
-    2. UNREGISTERED - regular user, who was created and can be managed by admin only
-    3. REGISTERED - regular user, who was created, confirmed and can be managed by both admin and himself
-
     Fields:
         role (str): choice filed which represents the type of created user
         telegram_id (str): telegram user ID
@@ -22,9 +17,15 @@ class User(AbstractUser):
     """
 
     class UserRolesChoices(models.TextChoices):
+        """
+        Roles:
+            ADMIN (registered): has direct access to the platform and other users
+            REGISTERED (registered): has direct access to the platform
+            UNREGISTERED (unregistered): does not have direct access to the platform
+        """
         ADMIN = 'ADM', _('Admin User')
-        UNREGISTERED = 'UNR', _('Unregistered User')
         REGISTERED = 'REG', _('Registered User')
+        UNREGISTERED = 'UNR', _('Unregistered User')
 
     role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices.choices)
     telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True, index=True)
@@ -36,8 +37,17 @@ class User(AbstractUser):
     password = models.CharField(_('password'), max_length=128, blank=True)
 
     def clean(self):
-        if self.role == self.UserRolesChoices.REGISTERED and not (self.password or self.email):
+        if self.role in (
+                self.UserRolesChoices.REGISTERED,
+                self.UserRolesChoices.ADMIN,
+        ) and not (self.password or self.email):
             raise ValidationError(_('Registered users must have an email and password.'))
+
+    def is_registered(self):
+        return self.role != self.UserRolesChoices.UNREGISTERED
+
+    def is_admin(self):
+        return self.is_superuser or self.role == self.UserRolesChoices.ADMIN
 
 
 class Profile(models.Model):
