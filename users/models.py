@@ -4,6 +4,18 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+class UserRolesChoices(models.TextChoices):
+    """
+    Roles:
+        ADMIN (registered): has direct access to the platform and other users
+        REGISTERED (registered): has direct access to the platform
+        UNREGISTERED (unregistered): does not have direct access to the platform
+    """
+    ADMIN = 'ADM', _('Admin User')
+    REGISTERED = 'REG', _('Registered User')
+    UNREGISTERED = 'UNR', _('Unregistered User')
+
+
 class User(AbstractUser):
     """
     This User model extends Django's AbstractUser model to add extra fields that you need for your application.
@@ -16,17 +28,6 @@ class User(AbstractUser):
         password (str): optional, if user is UNREGISTERED, otherwise is mandatory
     """
 
-    class UserRolesChoices(models.TextChoices):
-        """
-        Roles:
-            ADMIN (registered): has direct access to the platform and other users
-            REGISTERED (registered): has direct access to the platform
-            UNREGISTERED (unregistered): does not have direct access to the platform
-        """
-        ADMIN = 'ADM', _('Admin User')
-        REGISTERED = 'REG', _('Registered User')
-        UNREGISTERED = 'UNR', _('Unregistered User')
-
     role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices.choices)
     telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True, db_index=True)
     email = models.EmailField(
@@ -38,16 +39,16 @@ class User(AbstractUser):
 
     def clean(self):
         if self.role in (
-                self.UserRolesChoices.REGISTERED,
-                self.UserRolesChoices.ADMIN,
+                UserRolesChoices.REGISTERED,
+                UserRolesChoices.ADMIN,
         ) and not (self.password or self.email):
             raise ValidationError(_('Registered users must have an email and password.'))
 
     def is_registered(self):
-        return self.role != self.UserRolesChoices.UNREGISTERED
+        return self.role != UserRolesChoices.UNREGISTERED
 
     def is_admin(self):
-        return self.is_superuser or self.role == self.UserRolesChoices.ADMIN
+        return self.is_superuser or self.role == UserRolesChoices.ADMIN
 
 
 class Profile(models.Model):
