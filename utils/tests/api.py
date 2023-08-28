@@ -1,17 +1,13 @@
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
-from django.test import TestCase
-
+from rest_framework.test import APITestCase
 
 from users.models import UserRolesChoices
 
 User = get_user_model()
 
 
-class BaseAPITestCase(TestCase):
+class BaseAPITestCase(APITestCase):
     DEFAULT_PASSWORD = 'test-user-password-911'
-
-    client_class = APIClient  # TODO: configure our own client
 
     def __init__(self, *args):
         super().__init__(*args)
