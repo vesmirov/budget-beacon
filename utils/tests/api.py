@@ -9,11 +9,11 @@ User = get_user_model()
 class BaseAPITestCase(APITestCase):
     DEFAULT_PASSWORD = 'test-user-password-911'
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.admin_user = None
-        self.common_user = None
-        self.unregistered_user = None
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin_user = None
+        cls.common_user = None
+        cls.unregistered_user = None
 
     def setup_admin_user(self, **kwargs) -> User:
         """Creates, saves and returns an admin user for the test."""
@@ -27,8 +27,9 @@ class BaseAPITestCase(APITestCase):
             'role': UserRolesChoices.ADMIN,
         }
         data.update(kwargs)
-
         user = User.objects.create_user(**data)
+
+        self.client.force_authenticate(user=user)
         self.admin_user = user
 
         return user
@@ -45,8 +46,9 @@ class BaseAPITestCase(APITestCase):
             'role': UserRolesChoices.REGISTERED,
         }
         data.update(kwargs)
-
         user = User.objects.create_user(**data)
+
+        self.client.force_authenticate(user=user)
         self.common_user = user
 
         return user
@@ -63,14 +65,9 @@ class BaseAPITestCase(APITestCase):
             'role': UserRolesChoices.UNREGISTERED,
         }
         data.update(kwargs)
-
         user = User.objects.create_user(**data)
+
+        self.client.force_authenticate(user=user)
         self.unregistered_user = user
 
         return user
-
-    def setup_users(self):
-        """Creates and saves all the users for the test."""
-        self.setup_admin_user()
-        self.setup_common_user()
-        self.setup_unregistered_user()
