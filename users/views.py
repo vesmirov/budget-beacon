@@ -36,7 +36,7 @@ class UserDetailAPIView(RetrieveUpdateAPIView):
         return obj
 
 
-class UserRegisterAPIView(CreateAPIView):
-    queryset = User.objects.all()
-    authentication_classes = (AllowAny,)
-    serializer_class = UserSerializer
+# class UserRegisterAPIView(CreateAPIView):
+#     queryset = User.objects.all()
+#     authentication_classes = (AllowAny,)
+#     serializer_class = UserSerializer

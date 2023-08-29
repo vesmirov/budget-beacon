@@ -11,6 +11,6 @@ urlpatterns = [
 # Common access
 urlpatterns += [
     path('account/', UserDetailAPIView.as_view(), name='users-detail-common'),
-    path('sign-up/', UserRegisterAPIView.as_view(), name='users-register'),
+    # path('sign-up/', UserRegisterAPIView.as_view(), name='users-register'),
 ]
 
