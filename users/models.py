@@ -4,16 +4,23 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+class UserRolesChoices(models.TextChoices):
+    """
+    Roles:
+        ADMIN (registered): has direct access to the platform and other users
+        REGISTERED (registered): has direct access to the platform
+        UNREGISTERED (unregistered): does not have direct access to the platform
+    """
+    ADMIN = 'ADM', _('Admin User')
+    REGISTERED = 'REG', _('Registered User')
+    UNREGISTERED = 'UNR', _('Unregistered User')
+
+
 class User(AbstractUser):
     """
     This User model extends Django's AbstractUser model to add extra fields that you need for your application.
     Specifically, it includes a field for the user's Telegram ID, which allows your application to interact with
     the user through the Telegram messaging service.
-
-    The user has several roles:
-    1. ADMIN - administrator
-    2. UNREGISTERED - regular user, who was created and can be managed by admin only
-    3. REGISTERED - regular user, who was created, confirmed and can be managed by both admin and himself
 
     Fields:
         role (str): choice filed which represents the type of created user
@@ -21,18 +28,27 @@ class User(AbstractUser):
         password (str): optional, if user is UNREGISTERED, otherwise is mandatory
     """
 
-    class UserRolesChoices(models.TextChoices):
-        ADMIN = 'ADM', _('Admin User')
-        UNREGISTERED = 'UNR', _('Unregistered User')
-        REGISTERED = 'REG', _('Registered User')
-
     role = models.CharField(_('role'), max_length=3, choices=UserRolesChoices.choices)
-    telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True)
+    telegram_id = models.CharField(_('telegram ID'), max_length=32, unique=True, db_index=True)
+    email = models.EmailField(
+        _('email address'),
+        unique=True,
+        error_messages={'unique': _('A user with that email address already exists.')},
+    )
     password = models.CharField(_('password'), max_length=128, blank=True)
 
     def clean(self):
-        if self.role == self.UserRolesChoices.REGISTERED and not (self.password or self.email):
+        if self.role in (
+                UserRolesChoices.REGISTERED,
+                UserRolesChoices.ADMIN,
+        ) and not (self.password or self.email):
             raise ValidationError(_('Registered users must have an email and password.'))
+
+    def is_registered(self):
+        return self.role != UserRolesChoices.UNREGISTERED
+
+    def is_admin(self):
+        return self.is_superuser or self.role == UserRolesChoices.ADMIN
 
 
 class Profile(models.Model):
@@ -51,6 +67,11 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     balance = models.DecimalField(_('balance'), decimal_places=2, max_digits=15)
-    currency = models.ForeignKey('finances.Currency', on_delete=models.PROTECT, related_name='user_profiles', null=True)
+    currency = models.ForeignKey(
+        'finances.Currency',
+        on_delete=models.PROTECT,
+        related_name='user_profiles',
+        null=True,
+    )
     date_created = models.DateTimeField(_('date created'), auto_now_add=True)
     date_updated = models.DateTimeField(_('date updated'), auto_now=True)
